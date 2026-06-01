@@ -29,6 +29,8 @@ Sempre usar a DSL do `eloquent-dsl/ai-query`.
 
 ## O que foi adicionado
 
+A skill inclui recursos de geração de schema, instalação de templates e integração com o service provider do pacote.
+
 ## Novo comando `ai:schema`
 
 Arquivo:
@@ -118,6 +120,8 @@ Atualizacoes:
 - publicacao de `config/ai-query.php`, alem da tag ja existente `ai-query-config`.
 
 ## Como instalar
+
+A seguir estão os passos principais para instalar o pacote, publicar os templates e ativar a skill para a ferramenta desejada.
 
 ## 1. Instale o pacote
 
