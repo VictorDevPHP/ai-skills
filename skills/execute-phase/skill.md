@@ -96,9 +96,57 @@ Usar quando:
 
 ---
 
-# 4. Escolher modelo por step
+# 4. Verificar disponibilidade do Codex
 
-## Usar `haiku`
+Antes de escolher o executor de qualquer step, verificar se o Codex está instalado e funcional:
+
+```bash
+codex --version
+```
+
+- Se o comando retornar a versão corretamente → Codex disponível (`CODEX_DISPONIVEL = true`)
+- Se falhar (command not found, erro, timeout) → Codex indisponível (`CODEX_DISPONIVEL = false`)
+  - Registrar no Log de Execução: "Codex indisponível — usando apenas sub-agents Claude"
+  - Continuar normalmente com sub-agents Claude
+
+Esta verificação é feita **uma única vez** por invocação do `/execute-phase`, antes de processar qualquer grupo.
+
+---
+
+# 5. Escolher executor por step
+
+## Usar `codex` (quando `CODEX_DISPONIVEL = true`)
+
+Delegar ao Codex quando o step for de **implementação de código longa ou complexa** onde o Codex pode trabalhar de forma autônoma com menos supervisão de contexto:
+
+### Exemplos ideais para Codex
+
+- implementar feature completa em arquivo(s) isolado(s)
+- gerar CRUD, migrations, seeders
+- escrever testes unitários/de integração extensos
+- scaffolding de novos módulos
+- tarefas de transformação em massa de código
+
+### Como delegar ao Codex
+
+Executar via Bash:
+
+```bash
+codex "<instrução detalhada do step>"
+```
+
+A instrução deve conter:
+- o step exato do backlog
+- os arquivos relevantes (caminhos completos)
+- as convenções do projeto
+- o resultado esperado
+- proibição explícita de commit/push
+
+Após a execução, revisar o resultado conforme seção 7 antes de marcar o step.
+
+---
+
+## Usar `haiku` (sub-agent Claude)
 
 Quando o step for puramente mecânico.
 
@@ -113,7 +161,7 @@ Quando o step for puramente mecânico.
 
 ---
 
-## Usar `sonnet`
+## Usar `sonnet` (sub-agent Claude)
 
 Quando houver:
 
@@ -129,12 +177,15 @@ Quando houver:
 
 ## Regra de segurança
 
-Em caso de dúvida:
+Em caso de dúvida entre Codex e sub-agent:
+- preferir `sonnet` (sub-agent Claude) — mais rastreável e revisável
+
+Em caso de dúvida entre `haiku` e `sonnet`:
 - usar `sonnet`
 
 ---
 
-# 5. Naming dos Sub-Agents
+# 6. Naming dos Sub-Agents
 
 Cada sub-agent deve receber um nome amigável, técnico e contextual baseado no nome da fase atual.
 
@@ -214,7 +265,7 @@ Todos os nomes devem:
 
 ---
 
-# 6. Executar grupos
+# 7. Executar grupos
 
 Executar grupos na ordem correta.
 
@@ -281,7 +332,7 @@ Retorne:
 
 ---
 
-# 7. Revisão e aprovação pelo orquestrador
+# 8. Revisão e aprovação pelo orquestrador
 
 Após cada grupo concluir, o orquestrador (você, executando a skill) **DEVE revisar** o trabalho de cada sub-agent antes de marcar qualquer step como concluído. Nunca confie apenas no relatório do sub-agent.
 
@@ -316,25 +367,19 @@ Para cada sub-agent do grupo:
 - Reenviar o **mesmo step** ao sub-agent — via `SendMessage` no agent existente (preserva contexto) ou novo `Agent` — apontando de forma **concreta** o que está errado e as melhorias necessárias.
 - Re-revisar o resultado.
 - Repetir até aprovar, com **limite de 3 tentativas**.
-- Se após 3 tentativas ainda estiver reprovado, tratar como `status: erro` (seção 8): parar, não atualizar backlog, reportar ao usuário.
+- Se após 3 tentativas ainda estiver reprovado, tratar como `status: erro` (seção 9): parar, não atualizar backlog, reportar ao usuário.
 
 ---
 
 ## Regra crítica
 
-O backlog só é atualizado (seção 9) após **todos** os steps da fase terem sido **aprovados** na revisão.
+O backlog só é atualizado (seção 10) após **todos** os steps da fase terem sido **aprovados** na revisão.
 
 ---
 
-# 8. Tratar erros
+# 9. Tratar erros
 
-Se qualquer sub-agent retornar:
-
-```txt
-status: erro
-```
-
-Ou se um step for reprovado após 3 tentativas de revisão (seção 7):
+Se qualquer executor (sub-agent ou Codex) retornar erro ou falhar, ou se um step for reprovado após 3 tentativas de revisão (seção 8):
 
 Então:
 
@@ -346,7 +391,7 @@ Então:
 
 ---
 
-# 9. Atualizar backlog
+# 10. Atualizar backlog
 
 Após sucesso completo da fase:
 
@@ -372,7 +417,7 @@ Adicionar:
 - fase executada
 - groups paralelos/sequenciais
 - agents executados
-- modelo usado (`haiku`/`sonnet`)
+- modelo/executor usado (`haiku`/`sonnet`/`codex`)
 - resultado da revisão (aprovado direto / nº de retrabalhos por step)
 - arquivos alterados
 - decisões importantes
@@ -392,7 +437,7 @@ Exibir obrigatoriamente:
 
 ---
 
-## Agents executados
+## Executores utilizados
 
 Exemplo:
 
@@ -402,6 +447,7 @@ Grupo Paralelo 1
 - Fase 1: Agente Atualizador de Imports → haiku
 
 Grupo Sequencial 2
+- Fase 1: Implementação de Feature X → codex
 - Fase 1: Agente Removedor de Legados → haiku
 ```
 

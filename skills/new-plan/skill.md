@@ -98,3 +98,4 @@ Exiba um resumo do que foi criado:
 - O `backlog.md` é o **rastreador de execução**: traduz cada fase do `plan.md` em steps **atômicos e verificáveis** com checkboxes (`[ ]`), e é o único arquivo que o `/execute-phase` marca como concluído.
 - Cada step do backlog descreve uma ação concreta (criar arquivo, mover classe, atualizar import, rodar migration). Nunca steps vagos como "refatorar X" sem dizer o que muda em qual arquivo.
 - Cada fase deve terminar com um step de **verificação** (`Verificação Fase N`) descrevendo como confirmar que a fase está correta — esse step é marcado manualmente pelo usuário.
+- Steps de implementação longa/complexa em arquivo(s) isolado(s) podem ser sinalizados como candidatos ao Codex (ex: `[codex]`) para que o `/execute-phase` priorize delegar ao Codex quando disponível.
