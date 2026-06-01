@@ -142,7 +142,7 @@ A instrução deve conter:
 - o resultado esperado
 - proibição explícita de commit/push
 
-Após a execução, revisar o resultado conforme seção 7 antes de marcar o step.
+Após a execução, revisar o resultado conforme seção 8 antes de marcar o step.
 
 ---
 
@@ -424,7 +424,7 @@ Adicionar:
 
 ---
 
-# 10. Relatório final
+# 11. Relatório final
 
 Exibir obrigatoriamente:
 
